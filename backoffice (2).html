@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backoffice — Sea-Side Workshop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#dad4c6;
+  --cream-light:#f4f1e8;
+  --white:#fdfbf5;
+  --pink:#d99aa1;
+  --arch-pink:#fbd2de;
+  --berry:#96375a;
+  --green:#57642f;
+  --green-deep:#404a22;
+  --green-pale:#7c8a4d;
+  --ink:#2c2a20;
+  --ink-soft:#5a5647;
+  --line:#c3bcaa;
+  --error:#b3492f;
+  --shadow:0 10px 30px rgba(44,42,32,0.12);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:'Quicksand',sans-serif;
+  color:var(--ink);
+  background:var(--cream-light);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---- PIN SCREEN ---- */
+.pin-screen{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  text-align:center;
+  gap:14px;
+}
+.pin-screen h1{
+  font-family:'Baloo 2',sans-serif;
+  font-size:1.4rem;
+  color:var(--ink);
+  margin:0;
+}
+.pin-screen p{color:var(--ink-soft);margin:0 0 8px;font-size:0.92rem;}
+#pinInput{
+  width:180px;
+  text-align:center;
+  letter-spacing:6px;
+  font-size:1.4rem;
+  font-family:'Baloo 2',sans-serif;
+  font-weight:700;
+  padding:12px;
+  border-radius:12px;
+  border:2px solid var(--line);
+  background:var(--white);
+  color:var(--ink);
+  outline:none;
+}
+#pinInput:focus{border-color:var(--green-pale);}
+#pinSubmit{
+  border:none;
+  background:var(--green);
+  color:var(--white);
+  font-family:'Baloo 2',sans-serif;
+  font-weight:700;
+  font-size:1rem;
+  padding:12px 28px;
+  border-radius:12px;
+  cursor:pointer;
+}
+#pinSubmit:hover{background:var(--green-deep);}
+.pin-error{color:var(--error);font-weight:700;font-size:0.88rem;min-height:20px;}
+
+/* ---- DASHBOARD ---- */
+.dashboard{display:none;max-width:720px;margin:0 auto;padding:20px 16px 60px;}
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:18px;
+}
+header h1{
+  font-family:'Baloo 2',sans-serif;
+  font-size:1.25rem;
+  margin:0;
+  color:var(--ink);
+}
+#refreshBtn{
+  border:2px solid var(--line);
+  background:var(--white);
+  color:var(--ink);
+  font-family:'Baloo 2',sans-serif;
+  font-weight:700;
+  font-size:0.85rem;
+  padding:8px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+#refreshBtn:hover{border-color:var(--green-pale);}
+#refreshBtn.loading{opacity:0.5;pointer-events:none;}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+@media (min-width:480px){.stats{grid-template-columns:repeat(3,1fr);}}
+.stat-card{
+  background:var(--white);
+  border-radius:14px;
+  padding:12px 10px;
+  text-align:center;
+  box-shadow:0 4px 12px rgba(44,42,32,0.06);
+}
+.stat-num{
+  display:block;
+  font-family:'Baloo 2',sans-serif;
+  font-weight:800;
+  font-size:1.4rem;
+  color:var(--green-deep);
+}
+.stat-label{
+  display:block;
+  font-size:0.7rem;
+  color:var(--ink-soft);
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.3px;
+  margin-top:2px;
+}
+
+#searchBox{
+  width:100%;
+  padding:12px 14px;
+  border-radius:12px;
+  border:2px solid var(--line);
+  background:var(--white);
+  font-family:'Quicksand',sans-serif;
+  font-size:0.95rem;
+  font-weight:600;
+  color:var(--ink);
+  outline:none;
+  margin-bottom:10px;
+}
+#searchBox:focus{border-color:var(--green-pale);}
+
+.filter-tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:16px;
+  overflow-x:auto;
+  padding-bottom:2px;
+}
+.filter-tab{
+  border:2px solid var(--line);
+  background:var(--white);
+  color:var(--ink-soft);
+  font-family:'Baloo 2',sans-serif;
+  font-weight:700;
+  font-size:0.8rem;
+  padding:7px 14px;
+  border-radius:20px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.filter-tab.active{background:var(--green);border-color:var(--green);color:var(--white);}
+
+.empty-state{
+  text-align:center;
+  color:var(--ink-soft);
+  padding:40px 20px;
+  font-weight:600;
+}
+
+.booking-card{
+  background:var(--white);
+  border-radius:16px;
+  padding:14px 16px;
+  margin-bottom:10px;
+  box-shadow:0 4px 12px rgba(44,42,32,0.06);
+}
+.booking-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+.booking-name{
+  font-family:'Baloo 2',sans-serif;
+  font-weight:700;
+  font-size:1.02rem;
+  color:var(--ink);
+}
+.booking-days{
+  display:block;
+  font-size:0.78rem;
+  color:var(--ink-soft);
+  margin-top:2px;
+}
+.booking-total{
+  font-family:'Baloo 2',sans-serif;
+  font-weight:800;
+  font-size:1.15rem;
+  color:var(--berry);
+  white-space:nowrap;
+}
+.booking-contact{
+  display:flex;
+  gap:14px;
+  margin-top:8px;
+  font-size:0.85rem;
+}
+.booking-contact a{color:var(--green-deep);text-decoration:none;font-weight:600;}
+.booking-contact a:hover{text-decoration:underline;}
+
+.booking-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:10px;
+  gap:10px;
+}
+.paid-toggle{
+  border:none;
+  font-family:'Baloo 2',sans-serif;
+  font-weight:700;
+  font-size:0.82rem;
+  padding:8px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  background:var(--cream-light);
+  color:var(--ink-soft);
+  border:2px solid var(--line);
+}
+.paid-toggle.paid{background:#eef0e2;color:var(--green-deep);border-color:var(--green-pale);}
+.paid-toggle.loading{opacity:0.5;pointer-events:none;}
+
+details{margin-top:8px;}
+summary{
+  cursor:pointer;
+  font-size:0.8rem;
+  color:var(--ink-soft);
+  font-weight:600;
+}
+.detail-grid{
+  margin-top:8px;
+  font-size:0.82rem;
+  color:var(--ink-soft);
+  line-height:1.7;
+}
+.detail-grid b{color:var(--ink);font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="pin-screen" id="pinScreen">
+  <h1>Backoffice — Sea-Side Workshop</h1>
+  <p>Inserisci il PIN per vedere le prenotazioni</p>
+  <input type="password" inputmode="numeric" id="pinInput" maxlength="8" placeholder="••••">
+  <button id="pinSubmit">Entra</button>
+  <div class="pin-error" id="pinError"></div>
+</div>
+
+<div class="dashboard" id="dashboard">
+  <header>
+    <h1>Prenotazioni Sea-Side Workshop</h1>
+    <button id="refreshBtn">↻ Aggiorna</button>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card"><span class="stat-num" id="statTotal">0</span><span class="stat-label">Prenotazioni</span></div>
+    <div class="stat-card"><span class="stat-num" id="stat21">0</span><span class="stat-label">21/7 Infradito</span></div>
+    <div class="stat-card"><span class="stat-num" id="stat22">0</span><span class="stat-label">22/7 Choker</span></div>
+    <div class="stat-card"><span class="stat-num" id="statRevenue">€0</span><span class="stat-label">Incasso previsto</span></div>
+    <div class="stat-card"><span class="stat-num" id="statPaid">€0</span><span class="stat-label">Già incassato</span></div>
+  </div>
+
+  <input type="text" id="searchBox" placeholder="Cerca per nome o cognome...">
+
+  <div class="filter-tabs">
+    <button class="filter-tab active" data-filter="all">Tutti</button>
+    <button class="filter-tab" data-filter="ws21">21/7 Infradito</button>
+    <button class="filter-tab" data-filter="ws22">22/7 Choker</button>
+    <button class="filter-tab" data-filter="unpaid">Da pagare</button>
+  </div>
+
+  <div class="booking-list" id="bookingList"></div>
+</div>
+
+<script>
+const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz9FNzRtd3nfWnljtZDJLCI4Cw7j8-RBvo0yCXB-Vht_t5uYYSG5bQO0ld7C1udbhf1/exec";
+
+let PIN = '';
+let bookings = [];
+let currentFilter = 'all';
+
+function jsonpCall(params) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'cbBackoffice_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+    const script = document.createElement('script');
+    const usp = new URLSearchParams({ ...params, callback: callbackName });
+
+    const cleanup = () => { delete window[callbackName]; script.remove(); };
+    const timeout = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 15000);
+
+    window[callbackName] = (response) => { clearTimeout(timeout); cleanup(); resolve(response); };
+    script.onerror = () => { clearTimeout(timeout); cleanup(); reject(new Error('network')); };
+    script.src = `${ENDPOINT_URL}?${usp.toString()}`;
+    document.body.appendChild(script);
+  });
+}
+
+async function login() {
+  const pinValue = document.getElementById('pinInput').value.trim();
+  const errBox = document.getElementById('pinError');
+  errBox.textContent = '';
+  if (!pinValue) return;
+
+  document.getElementById('pinSubmit').disabled = true;
+  try {
+    const result = await jsonpCall({ action: 'list', pin: pinValue });
+    if (result.status === 'ok') {
+      PIN = pinValue;
+      bookings = result.data;
+      document.getElementById('pinScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      render();
+    } else {
+      errBox.textContent = result.message || 'PIN errato';
+    }
+  } catch (err) {
+    errBox.textContent = 'Errore di connessione, riprova.';
+  }
+  document.getElementById('pinSubmit').disabled = false;
+}
+
+document.getElementById('pinSubmit').addEventListener('click', login);
+document.getElementById('pinInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') login();
+});
+
+async function refresh() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading');
+  try {
+    const result = await jsonpCall({ action: 'list', pin: PIN });
+    if (result.status === 'ok') {
+      bookings = result.data;
+      render();
+    }
+  } catch (err) { /* silenzioso: riprova al prossimo click */ }
+  btn.classList.remove('loading');
+}
+document.getElementById('refreshBtn').addEventListener('click', refresh);
+
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentFilter = tab.dataset.filter;
+    render();
+  });
+});
+
+document.getElementById('searchBox').addEventListener('input', render);
+
+function giorniLabel(b) {
+  const giorni = [];
+  if (b.ws21 === 'Sì') giorni.push('21/7');
+  if (b.ws22 === 'Sì') giorni.push('22/7');
+  return giorni.join(' + ') || '—';
+}
+
+function render() {
+  const query = document.getElementById('searchBox').value.trim().toLowerCase();
+
+  let filtered = bookings.filter(b => {
+    const matchQuery = !query || (b.nome + ' ' + b.cognome).toLowerCase().includes(query);
+    if (!matchQuery) return false;
+    if (currentFilter === 'ws21') return b.ws21 === 'Sì';
+    if (currentFilter === 'ws22') return b.ws22 === 'Sì';
+    if (currentFilter === 'unpaid') return b.pagato !== 'Sì';
+    return true;
+  });
+
+  document.getElementById('statTotal').textContent = bookings.length;
+  document.getElementById('stat21').textContent = bookings.filter(b => b.ws21 === 'Sì').length;
+  document.getElementById('stat22').textContent = bookings.filter(b => b.ws22 === 'Sì').length;
+  const totalRevenue = bookings.reduce((s, b) => s + (parseFloat(b.totale) || 0), 0);
+  const paidRevenue = bookings.filter(b => b.pagato === 'Sì').reduce((s, b) => s + (parseFloat(b.totale) || 0), 0);
+  document.getElementById('statRevenue').textContent = '€' + totalRevenue;
+  document.getElementById('statPaid').textContent = '€' + paidRevenue;
+
+  const list = document.getElementById('bookingList');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">Nessuna prenotazione trovata</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(b => `
+    <div class="booking-card">
+      <div class="booking-top">
+        <div>
+          <span class="booking-name">${escapeHtml(b.nome)} ${escapeHtml(b.cognome)}</span>
+          <span class="booking-days">${giorniLabel(b)} · inviata ${escapeHtml(b.dataInvio)}</span>
+        </div>
+        <span class="booking-total">€${escapeHtml(b.totale)}</span>
+      </div>
+      <div class="booking-contact">
+        <a href="tel:${escapeHtml(b.telefono)}">📞 ${escapeHtml(b.telefono)}</a>
+        <a href="mailto:${escapeHtml(b.email)}">✉️ Email</a>
+      </div>
+      <div class="booking-actions">
+        <button class="paid-toggle ${b.pagato === 'Sì' ? 'paid' : ''}" data-row="${b.row}" data-current="${b.pagato}">
+          ${b.pagato === 'Sì' ? '✓ Pagato' : 'Da pagare'}
+        </button>
+      </div>
+      <details>
+        <summary>Altri dati (fatturazione)</summary>
+        <div class="detail-grid">
+          <div><b>Codice fiscale:</b> ${escapeHtml(b.codiceFiscale)}</div>
+          <div><b>Nato/a il:</b> ${escapeHtml(b.dataNascita)} a ${escapeHtml(b.luogoNascita)} (${escapeHtml(b.sesso)})</div>
+          <div><b>Indirizzo:</b> ${escapeHtml(b.indirizzo)}, ${escapeHtml(b.comuneResidenza)} (${escapeHtml(b.provincia)}) ${escapeHtml(b.cap)}</div>
+        </div>
+      </details>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.paid-toggle').forEach(btn => {
+    btn.addEventListener('click', () => togglePaid(btn));
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str === undefined || str === null ? '' : String(str);
+  return div.innerHTML;
+}
+
+async function togglePaid(btn) {
+  const row = btn.dataset.row;
+  const current = btn.dataset.current;
+  const newValue = current === 'Sì' ? 'No' : 'Si';
+
+  btn.classList.add('loading');
+  try {
+    const result = await jsonpCall({ action: 'togglePaid', pin: PIN, row: row, value: newValue });
+    if (result.status === 'ok') {
+      const booking = bookings.find(b => String(b.row) === String(row));
+      if (booking) booking.pagato = newValue === 'Si' ? 'Sì' : 'No';
+      render();
+    }
+  } catch (err) { /* riprova al prossimo tap */ }
+  btn.classList.remove('loading');
+}
+</script>
+</body>
+</html>
